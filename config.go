@@ -2,45 +2,39 @@ package ratelimiter
 
 import (
 	"errors"
-	"net"
-	"net/http"
 )
 
 // Config for rateLimiter
 type Config struct {
-	limit int64
-	// UTC in sec
-	expiration int64
+	Limit int64
+	// in sec
+	Expiration int64
 
-	Store  Store
-	getKey func(req *http.Request) string
+	Store Store
 }
 
 // ValidateAndNormalize validates and sets default value for the Config
 func (c *Config) ValidateAndNormalize() error {
-	if c.limit < 0 {
+	if c.Limit < 0 {
 		return errors.New("negative maxRequests is not allowed")
 	}
-	if c.expiration < 0 {
+	if c.Expiration < 0 {
 		return errors.New("negative windowSize is not allowed")
 	}
+
 	if c.Store == nil {
-		return errors.New("empty Store is not allowed")
+		// default store is memStore
+		// c.Store = memstore.NewMemStore()
+		return errors.New("empty store is not allowed")
+	}
+	if c.Limit == 0 {
+		// default threshold of requests is 1000
+		c.Limit = 1000
+	}
+	if c.Expiration == 0 {
+		// default windowSize is an hour
+		c.Expiration = 60 * 60
 	}
 
-	if c.limit == 0 {
-		// default threshold of requests is 1000
-		c.limit = 1000
-	}
-	if c.expiration == 0 {
-		// default windowSize is an hour
-		c.expiration = 60 * 60
-	}
-	if c.getKey == nil {
-		c.getKey = func(req *http.Request) string {
-			ip, _, _ := net.SplitHostPort(req.RemoteAddr)
-			return ip
-		}
-	}
 	return nil
 }

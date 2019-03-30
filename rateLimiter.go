@@ -7,7 +7,10 @@ import (
 
 // Context for a given key
 type Context struct {
-	CurrentCounter int64
+	CurrentCounter   int64
+	RemainingCounter int64
+	// in sec
+	TTL int64
 	// UTC in sec
 	ResetTime      int64
 	IsReachedLimit bool
@@ -15,39 +18,26 @@ type Context struct {
 
 // Store for storing number of counts of a key
 type Store interface {
+	// currentCounter, TTL, err
 	INCR(string, int64, int64) (int64, int64, error)
 }
 
 // RateLimiter limit the requests an key can make in a period of time
 type RateLimiter interface {
+	Get(key string) (*Context, error)
 }
 
 type rateLimiter struct {
-	config Config
+	config *Config
 	store  Store
-	// req    *http.Request
 }
 
 func (r *rateLimiter) generateKey(key string) string {
-	now := time.Now().Unix() / r.config.expiration
+	now := time.Now().Unix() / r.config.Expiration
 	return fmt.Sprintf("%s:%d", key, now)
 }
 
-func (r *rateLimiter) calculateResetTime(TTL int64) int64 {
-	nextInterval := time.Now().Unix()/r.config.expiration + 1
-	now := time.Now().Unix()
-	resetTime := nextInterval*r.config.expiration - now
-	/* if resetTime < 60 {
-		unit = "second(s)"
-	} else if resetTime < 60*60 {
-		unit = "minute(s)"
-	} else {
-		unit = "hour(s)"
-	} */
-	return resetTime
-}
-
-func newRateLimiter(c Config) *rateLimiter {
+func newRateLimiter(c *Config) *rateLimiter {
 	if err := c.ValidateAndNormalize(); err != nil {
 		panic(err.Error())
 	}
@@ -59,7 +49,7 @@ func newRateLimiter(c Config) *rateLimiter {
 }
 
 // NewRateLimiter for creating new rateLimiter instance
-func NewRateLimiter(c Config) RateLimiter {
+func NewRateLimiter(c *Config) RateLimiter {
 	return newRateLimiter(c)
 }
 
@@ -67,16 +57,22 @@ func NewRateLimiter(c Config) RateLimiter {
 func (r *rateLimiter) Get(key string) (*Context, error) {
 	keyWithTimestamp := r.generateKey(key)
 
-	currentCounter, TTL, err := r.store.INCR(keyWithTimestamp, r.config.limit, r.config.expiration)
+	currentCounter, TTL, err := r.store.INCR(keyWithTimestamp, r.config.Limit, r.config.Expiration)
 
 	if err != nil {
 		return nil, err
 	}
 
 	c := &Context{
-		IsReachedLimit: r.config.limit-currentCounter > 0,
-		CurrentCounter: currentCounter,
-		ResetTime:      TTL,
+		IsReachedLimit:   currentCounter-r.config.Limit > 0,
+		CurrentCounter:   currentCounter,
+		RemainingCounter: 0,
+		TTL:              TTL,
+		ResetTime:        time.Now().Unix() + TTL,
+	}
+
+	if !c.IsReachedLimit {
+		c.RemainingCounter = r.config.Limit - currentCounter
 	}
 
 	return c, nil
