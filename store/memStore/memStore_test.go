@@ -3,11 +3,11 @@ package memstore
 import (
 	"testing"
 
-	rateLimiter "github.com/plsmaop/rateLimiterGo"
+	ratelimiter "github.com/plsmaop/rateLimiterGo"
 	"github.com/plsmaop/rateLimiterGo/tester"
 )
 
-var newStore = func(_ *testing.T) rateLimiter.Store {
+var newStore = func(_ *testing.T) ratelimiter.Store {
 	return NewMemStore()
 }
 

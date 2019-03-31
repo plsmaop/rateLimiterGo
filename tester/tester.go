@@ -12,11 +12,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	rateLimiter "github.com/plsmaop/rateLimiterGo"
+	ratelimiter "github.com/plsmaop/rateLimiterGo"
 	ginMiddleware "github.com/plsmaop/rateLimiterGo/middleware/gin"
 )
 
-type storeFactory func(*testing.T) rateLimiter.Store
+type storeFactory func(*testing.T) ratelimiter.Store
 
 const (
 	MEM_STORE = iota
