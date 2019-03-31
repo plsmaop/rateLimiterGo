@@ -26,3 +26,7 @@ func Test_TooManyRequests(t *testing.T) {
 func Test_TimeReset(t *testing.T) {
 	tester.TimeReset(t, newStore)
 }
+
+func Test_DifferentIP(t *testing.T) {
+	tester.DifferentIP(t, newStore)
+}

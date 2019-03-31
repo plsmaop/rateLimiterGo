@@ -4,6 +4,7 @@
 package tester
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"sync"
@@ -162,5 +163,38 @@ func TimeReset(t *testing.T, newStore storeFactory) {
 
 	if res.Code != 200 {
 		t.Errorf("TimeReset Error\nWant: 200, Got: %d", res.Code)
+	}
+}
+
+func DifferentIP(t *testing.T, newStore storeFactory) {
+	r := gin.Default()
+	r.Use(ginMiddleware.NewRateLimiterMiddleware(&ginMiddleware.Config{
+		Limit:      5,
+		Expiration: expiration,
+		Store:      newStore(t),
+	}))
+	r.GET("/", func(c *gin.Context) {
+		c.String(200, "Hello World")
+	})
+
+	wg := sync.WaitGroup{}
+	TooManyRequestsCounter := int32(0)
+	for i := int64(0); i < reqNum; i++ {
+		wg.Add(1)
+		go func(i int64) {
+			res := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", "/", nil)
+			req.Header.Add("X-Forwarded-For", fmt.Sprintf("%d.2.3.5", i%10))
+			r.ServeHTTP(res, req)
+			if res.Code == 429 {
+				atomic.AddInt32(&TooManyRequestsCounter, 1)
+			}
+			wg.Done()
+		}(i)
+	}
+	wg.Wait()
+
+	if TooManyRequestsCounter != 100 {
+		t.Errorf("DifferentIP Error\nWant: 100, Got: %d", TooManyRequestsCounter)
 	}
 }

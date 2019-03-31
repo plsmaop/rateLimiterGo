@@ -1,0 +1,19 @@
+language: go
+
+go:
+  - 1.10.x
+  - 1.11.x
+  - 1.12.x
+  - master
+
+services:
+  - redis
+
+install:
+  - go get -t -v ./...
+
+script:
+  - go test -v -covermode=atomic -coverprofile=coverage.out ./...
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
