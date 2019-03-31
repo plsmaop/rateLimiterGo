@@ -91,7 +91,7 @@ func (m *middleware) handle(ctx *gin.Context) {
 	// TODO: use Config to decide timezone
 	loc := time.FixedZone("", 8*60*60)
 	t := time.Unix(keyContext.ResetTime, 0).In(loc)
-	ctx.Header("X-RateLimit-Reset", t.Format("2006-01-02 15:04:05"))
+	ctx.Header("X-RateLimit-Reset", t.Format("2006-01-02 15:04"))
 
 	if keyContext.IsReachedLimit {
 		m.onLimitReached(ctx)
