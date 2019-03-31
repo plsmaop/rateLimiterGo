@@ -29,7 +29,7 @@ func init() {
 }
 
 var (
-	reqNum     = int64(150)
+	reqNum     = int64(1500)
 	expiration = int64(60 * 60)
 )
 
@@ -194,7 +194,7 @@ func DifferentIP(t *testing.T, newStore storeFactory) {
 	}
 	wg.Wait()
 
-	if TooManyRequestsCounter != 100 {
-		t.Errorf("DifferentIP Error\nWant: 100, Got: %d", TooManyRequestsCounter)
+	if TooManyRequestsCounter != int32(10*(reqNum/10-5)) {
+		t.Errorf("DifferentIP Error\nWant: %d, Got: %d", 10*(reqNum/10-5), TooManyRequestsCounter)
 	}
 }

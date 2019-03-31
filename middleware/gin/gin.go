@@ -41,13 +41,12 @@ func (c *Config) validateAndNormalize() {
 // KeyGetter gets key from gin Context
 type KeyGetter func(c *gin.Context) string
 
-// ErrorHandler is evoked when error is not nil
+// ErrorHandler is triggered when an error happens
 type ErrorHandler func(c *gin.Context, err error)
 
-// LimitReachedHandler is evoked when the limit is exceed
+// LimitReachedHandler is triggered when the limit is exceed
 type LimitReachedHandler func(c *gin.Context)
 
-// Middleware is the rate limiter middleware for gin
 type middleware struct {
 	rateLimiter    ratelimiter.RateLimiter
 	onError        ErrorHandler

@@ -7,6 +7,10 @@ a simple rate limiter written in Golang
 * Gin
 ### Usage
 ```
+go get github.com/plsmaop/rateLimiterGo
+```
+
+```
 package main
 
 import (
@@ -67,7 +71,7 @@ func main() {
 
 ```
 
-### Middleware Example
+### Gin Middleware Example
 ```
 import (
 	"time"
@@ -97,6 +101,11 @@ func middleware() {
 		// in sec
 		Expiration: 60 * 60,
 		Store:      redisStore,
+		// I use request's IP as default key
+		// You can define your own KeyGetter
+		KeyGetter: func(c *gin.Context) string {
+			return c.ClientIP()
+		}
 	}))
 }
 ```
