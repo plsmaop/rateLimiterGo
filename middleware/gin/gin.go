@@ -11,6 +11,7 @@ import (
 
 // Config for rate limiter middleware
 type Config struct {
+	Header     bool
 	Limit      int64
 	Expiration int64
 	Store      ratelimiter.Store
@@ -52,6 +53,7 @@ type middleware struct {
 	onError        ErrorHandler
 	onLimitReached LimitReachedHandler
 	keyGetter      KeyGetter
+	header         bool
 }
 
 // NewRateLimiterMiddleware creats an instance of gin rate limiter middleware
@@ -68,6 +70,7 @@ func NewRateLimiterMiddleware(c *Config) gin.HandlerFunc {
 		onError:        c.ErrorHandler,
 		onLimitReached: c.LimitReachedHandler,
 		keyGetter:      c.KeyGetter,
+		header:         c.Header,
 	}
 
 	return func(ctx *gin.Context) {
@@ -84,13 +87,15 @@ func (m *middleware) handle(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Header("X-RateLimit-Remaining", strconv.FormatInt(keyContext.RemainingCounter, 10))
+	if m.header {
+		ctx.Header("X-RateLimit-Remaining", strconv.FormatInt(keyContext.RemainingCounter, 10))
 
-	// UTC + 8 for TW
-	// TODO: use Config to decide timezone
-	loc := time.FixedZone("", 8*60*60)
-	t := time.Unix(keyContext.ResetTime, 0).In(loc)
-	ctx.Header("X-RateLimit-Reset", t.Format("2006-01-02 15:04"))
+		// UTC + 8 for TW
+		// TODO: use Config to decide timezone
+		loc := time.FixedZone("", 8*60*60)
+		t := time.Unix(keyContext.ResetTime, 0).In(loc)
+		ctx.Header("X-RateLimit-Reset", t.Format("2006-01-02 15:04"))
+	}
 
 	if keyContext.IsReachedLimit {
 		m.onLimitReached(ctx)

@@ -39,6 +39,7 @@ func ResponseHeader(t *testing.T, newStore storeFactory) {
 		Limit:      10,
 		Expiration: expiration,
 		Store:      newStore(t),
+		Header:     true,
 	}))
 	r.GET("/", func(c *gin.Context) {
 		c.String(200, "Hello World")

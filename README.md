@@ -97,11 +97,13 @@ func middleware() {
 
 	r := gin.Default()
 	r.Use(ginMiddleware.NewRateLimiterMiddleware(&ginMiddleware.Config{
+		// set header or not
+		Header: true,
 		Limit: 1000,
 		// in sec
 		Expiration: 60 * 60,
 		Store:      redisStore,
-		// I use request's IP as default key
+		// default key of the rate limiter is request's IP
 		// You can define your own KeyGetter
 		KeyGetter: func(c *gin.Context) string {
 			return c.ClientIP()

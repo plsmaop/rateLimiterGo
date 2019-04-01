@@ -16,10 +16,10 @@ type Config struct {
 // ValidateAndNormalize validates and sets default value for the Config
 func (c *Config) ValidateAndNormalize() error {
 	if c.Limit < 0 {
-		return errors.New("negative maxRequests is not allowed")
+		return errors.New("negative Limit is not allowed")
 	}
 	if c.Expiration < 0 {
-		return errors.New("negative windowSize is not allowed")
+		return errors.New("negative Expiration is not allowed")
 	}
 
 	if c.Store == nil {
