@@ -1,9 +1,9 @@
 package gin
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	ratelimiter "github.com/plsmaop/rateLimiterGo"
@@ -89,12 +89,8 @@ func (m *middleware) handle(ctx *gin.Context) {
 
 	if m.header {
 		ctx.Header("X-RateLimit-Remaining", strconv.FormatInt(keyContext.RemainingCounter, 10))
-
-		// UTC + 8 for TW
-		// TODO: use Config to decide timezone
-		loc := time.FixedZone("", 8*60*60)
-		t := time.Unix(keyContext.ResetTime, 0).In(loc)
-		ctx.Header("X-RateLimit-Reset", t.Format("2006-01-02 15:04"))
+		// UTC in sec
+		ctx.Header("X-RateLimit-Reset", fmt.Sprintf("%d", keyContext.ResetTime))
 	}
 
 	if keyContext.IsReachedLimit {

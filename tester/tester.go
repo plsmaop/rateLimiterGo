@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -29,7 +30,7 @@ func init() {
 }
 
 var (
-	reqNum     = int64(1500)
+	reqNum     = int64(2000)
 	expiration = int64(60 * 60)
 )
 
@@ -63,8 +64,12 @@ func ResponseHeader(t *testing.T, newStore storeFactory) {
 	now := time.Now().Unix()
 	loc := time.FixedZone("", 8*60*60)
 	timeString := time.Unix(now+expiration, 0).In(loc).Format("2006-01-02 15:04")
-	if XRatelimitReset[0] != timeString {
-		t.Error("X-Ratelimit-Reset Error\nWant: ", timeString, ", Got: ", XRatelimitReset[0])
+
+	resetTimeNum, _ := strconv.Atoi(XRatelimitReset[0])
+	resetTime := time.Unix(int64(resetTimeNum), 0).In(loc).Format("2006-01-02 15:04")
+	fmt.Println(XRatelimitReset[0])
+	if resetTime != timeString {
+		t.Error("X-Ratelimit-Reset Error\nWant: ", timeString, ", Got: ", resetTime)
 	}
 }
 
