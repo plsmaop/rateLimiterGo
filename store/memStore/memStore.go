@@ -29,12 +29,12 @@ func NewMemStore() *Store {
 func (s *Store) setExpiration(key string, expiration int64) {
 	time.AfterFunc(time.Duration(expiration)*time.Second, func() {
 		s.lock.Lock()
-		s.lock.Unlock()
+		defer s.lock.Unlock()
 		delete(s.table, key)
 	})
 }
 
-// INCR increments counter of the key
+// INCR increment counter of the key
 // and return current counter and its TTL
 func (s *Store) INCR(key string, limit int64, expiration int64) (int64, int64, error) {
 

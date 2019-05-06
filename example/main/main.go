@@ -43,7 +43,7 @@ func main() {
 		Store: redisStore,
 	})
 
-	// Get will increments the counter of the key
+	// Get will increment the counter of the key
 	// and return the Context of the key
 	c, err := rateLimiter.Get(key)
 	if err != nil {

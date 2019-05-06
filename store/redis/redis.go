@@ -106,7 +106,7 @@ func (s *Store) setExpiration(key string, expiration int64) error {
 	return nil
 }
 
-// INCR increments counter of the key
+// INCR increment counter of the key
 // and return current counter and its TTL
 func (s *Store) INCR(key string, limit int64, expiration int64) (int64, int64, error) {
 	currentCounter, TTL, err := s.incr(key)
