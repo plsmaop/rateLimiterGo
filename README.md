@@ -10,7 +10,7 @@ a simple rate limiter written in Golang
 go get github.com/plsmaop/rateLimiterGo
 ```
 
-```
+```go
 package main
 
 import (
@@ -44,7 +44,7 @@ func main() {
 		MaxActive:   500,
 		IdleTimeout: 240 * time.Second,
 	})
-  if err != nil {
+  	if err != nil {
 		panic(err)
 	}
 
