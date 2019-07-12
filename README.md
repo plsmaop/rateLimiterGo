@@ -72,7 +72,7 @@ func main() {
 ```
 
 ### Gin Middleware Example
-```
+```go
 import (
 	"time"
 
