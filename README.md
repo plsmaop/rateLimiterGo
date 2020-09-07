@@ -1,4 +1,7 @@
 # RateLimiterGo
+[![Build Status](https://travis-ci.org/plsmaop/rateLimiterGo.svg?branch=master)](https://travis-ci.org/plsmaop/rateLimiterGo.svg)
+
+
 a simple toy rate limiter written in Go
 ### Currently Support
 * in-memory store
