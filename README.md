@@ -1,5 +1,5 @@
 # RateLimiterGo
-a simple rate limiter written in Golang
+a simple toy rate limiter written in Go
 ### Currently Support
 * in-memory store
 * Redis store
